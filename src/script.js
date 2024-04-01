@@ -87,7 +87,7 @@ material.onBeforeCompile = (shader) => {
         `
             #include <begin_vertex>
 
-            float angle = 0.3;
+            float angle = position.y;
             mat2 rotateMatrix = get2dRotateMatrix(angle);
 
             transformed.xz = rotateMatrix * transformed.xz;
