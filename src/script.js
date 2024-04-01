@@ -77,6 +77,7 @@ const customUniforms = {
     uTime: { value: 0 }
 };
 
+// In the following code we are fixing the core shadow as well which is the shadow applied on the model itself
 material.onBeforeCompile = (shader) => {
     shader.uniforms.uTime = customUniforms.uTime;
 
@@ -93,20 +94,28 @@ material.onBeforeCompile = (shader) => {
             }
         `
     );
+    shader.vertexShader = shader.vertexShader.replace(
+        '#include <beginnormal_vertex>',
+        `
+            #include <beginnormal_vertex>
 
+            float angle = (position.y + uTime) * 0.9;
+            mat2 rotateMatrix = get2dRotateMatrix(angle);
+
+            objectNormal.xz = rotateMatrix * objectNormal.xz;
+        `
+    );
     shader.vertexShader = shader.vertexShader.replace(
         '#include <begin_vertex>', 
         `
             #include <begin_vertex>
-
-            float angle = (position.y + uTime) * 0.9;
-            mat2 rotateMatrix = get2dRotateMatrix(angle);
 
             transformed.xz = rotateMatrix * transformed.xz;
         `
     );
 }
 
+// There is no core shadow applied on the depth material, so no fix needed here regarding this issue, the following code only fixes the drop shadow which is the shadow you can see projected on the plane
 depthMaterial.onBeforeCompile = (shader) => {
     shader.uniforms.uTime = customUniforms.uTime;
 
